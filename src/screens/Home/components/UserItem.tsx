@@ -1,38 +1,22 @@
 import React, {useCallback} from 'react';
-import {Image, StyleSheet, Text, TouchableOpacity, View} from 'react-native';
+import {StyleSheet, Text, TouchableOpacity, View} from 'react-native';
 import {TUser} from '../../../app/API';
 import {COMMON_STYLES} from '../../../styles';
-import {ImagePlaceholder} from './ImagePlaceholder/ImagePlaceholder';
+import UserImage from '../../User/components/UserImage';
+import UserDescription from '../../User/components/UserDescription';
+import UserHeart from '../../User/components/UserHeart';
 
 interface IProps {
     item: TUser;
     onRemove?: (id: number) => void;
+    onNavigate: (user: TUser) => void;
 }
 
 export function UserItem(props: IProps) {
-    const {item, onRemove} = props;
+    const {item, onRemove, onNavigate} = props;
     const {avatar, name, id, age} = item;
 
     const handleRemove = useCallback(() => onRemove?.(item.id), [item, onRemove]);
-    const renderDescription = useCallback(
-        () => (
-            <View style={styles.text}>
-                <Text>id: {id}</Text>
-                <Text>Name: {name}</Text>
-                <Text>Age: {age}</Text>
-            </View>
-        ),
-        [age, id, name],
-    );
-
-    const renderImage = useCallback(
-        () => (
-            <View style={styles.imageContainer}>
-                {avatar ? <Image style={styles.image} source={{uri: avatar}} /> : <ImagePlaceholder />}
-            </View>
-        ),
-        [avatar],
-    );
 
     const renderRemoveButton = useCallback(
         () => (
@@ -46,15 +30,20 @@ export function UserItem(props: IProps) {
     const renderBody = useCallback(() => {
         return (
             <View style={styles.body}>
-                {renderImage()}
-                {renderDescription()}
+                <UserImage avatar={avatar} />
+                <UserHeart size={30} id={id} />
+                <UserDescription id={id} name={name} age={age} />
                 {renderRemoveButton()}
             </View>
         );
-    }, [renderDescription, renderImage, renderRemoveButton]);
+    }, [renderRemoveButton]);
 
     const renderContainer = useCallback(() => {
-        return <View style={styles.container}>{renderBody()}</View>;
+        return (
+            <TouchableOpacity style={styles.container} onPress={() => onNavigate(item)}>
+                {renderBody()}
+            </TouchableOpacity>
+        );
     }, [renderBody]);
 
     return <View style={styles.root}>{renderContainer()}</View>;
@@ -80,21 +69,6 @@ const styles = StyleSheet.create({
         ...COMMON_STYLES.pv_1,
         height: '100%',
         width: '100%',
-    },
-    imageContainer: {
-        ...COMMON_STYLES.ml_1,
-        height: 100,
-        width: 100,
-        borderWidth: 1,
-        borderRadius: 16,
-    },
-    image: {
-        height: '100%',
-        width: '100%',
-        borderRadius: 16,
-    },
-    text: {
-        ...COMMON_STYLES.ml_2,
     },
     removeIcon: {
         fontSize: 24,

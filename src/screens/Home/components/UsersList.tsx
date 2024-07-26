@@ -1,5 +1,7 @@
 import React, {useCallback, useEffect, useMemo, useState} from 'react';
 import {ScrollView, StyleSheet, View} from 'react-native';
+import {Navigation} from 'react-native-navigation';
+
 import {removeUser} from '../../../app/actions/users';
 import {TUser} from '../../../app/API';
 import {fetchUsersThunk} from '../../../app/asyncActions/users';
@@ -13,7 +15,11 @@ import {Loader} from './Loader/Loader';
 import Pagination from './Pagination';
 import {UserItem} from './UserItem';
 
-function UsersList() {
+interface IUsersListProps {
+    componentId: string;
+}
+
+function UsersList({componentId}: IUsersListProps) {
     const [filter, setFilter] = React.useState('');
     const dispatch = useAppDispatch();
     const [currentPage, setCurrentPage] = useState(1);
@@ -43,11 +49,15 @@ function UsersList() {
     const renderItem = useCallback(
         (item: TUser) => (
             <View key={item.id} style={styles.itemWrapper}>
-                <UserItem onRemove={handleRemoveUser} item={item} />
+                <UserItem onRemove={handleRemoveUser} item={item} onNavigate={navigateToUserDetails} />
             </View>
         ),
         [handleRemoveUser],
     );
+
+    const navigateToUserDetails = useCallback((item: TUser) => {
+        Navigation.push(componentId, {component: {name: 'User', passProps: {userId: item.id}}});
+    }, []);
 
     return (
         <View style={styles.root}>
