@@ -40,10 +40,8 @@ export const usersReducer = createReducer<TUsersState, TUsersActions>(initialSta
         if (isLiked) {
             const filteredList: number[] = state.likedUserIds.filter(item => item !== action.payload);
             return {...state, likedUserIds: filteredList};
-        } else {
-            const newList: number[] = [...state.likedUserIds, action.payload];
-            return {...state, likedUserIds: newList};
         }
+        return {...state, likedUserIds: [...state.likedUserIds, action.payload]};
     })
     .handleAction(fetchUsersAsync.request, state => ({...state, status: 'loading'}))
     .handleAction(fetchUsersAsync.success, (state, action) => ({
